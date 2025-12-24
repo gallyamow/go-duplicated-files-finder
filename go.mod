@@ -1,1 +1,1 @@
-module go-duplicated-files-finder
+module github.com/gallyamow/go-duplicated-files-finder
