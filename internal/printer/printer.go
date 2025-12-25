@@ -2,10 +2,11 @@ package printer
 
 import (
 	"fmt"
-	"github.com/gallyamow/go-duplicated-files-finder/internal/model"
 	"os"
 	"slices"
 	"sort"
+
+	"github.com/gallyamow/go-duplicated-files-finder/internal/model"
 )
 
 type Format string

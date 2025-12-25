@@ -2,12 +2,13 @@ package scanner
 
 import (
 	"fmt"
-	"github.com/gallyamow/go-duplicated-files-finder/internal/model"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+
+	"github.com/gallyamow/go-duplicated-files-finder/internal/model"
 )
 
 type Filter struct {

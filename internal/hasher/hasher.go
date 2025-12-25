@@ -7,13 +7,14 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/gallyamow/go-duplicated-files-finder/internal/model"
-	"github.com/gallyamow/go-duplicated-files-finder/pkg/workerpool"
 	"hash"
 	"io"
 	"os"
 	"slices"
 	"sync"
+
+	"github.com/gallyamow/go-duplicated-files-finder/internal/model"
+	"github.com/gallyamow/go-duplicated-files-finder/pkg/workerpool"
 )
 
 func HashFiles(ctx context.Context, files []model.FileInfo, algo string, workers int) []model.FileInfo {

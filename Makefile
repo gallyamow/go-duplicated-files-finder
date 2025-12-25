@@ -16,5 +16,9 @@ run:
 clean:
 	rm -f $(APP_NAME)
 
+lint:
+	goimports -w .
+	golangci-lint run ./...
+
 version:
 	@echo $(VERSION)

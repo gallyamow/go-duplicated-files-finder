@@ -1,34 +1,29 @@
 run:
   timeout: 5m
-  tests: true   # проверяем и тесты
+  tests: true
   issues.exclude-dirs:
-    - "dist"
-    - "vendor"
+    - dist
+    - vendor
   issues.exclude-files:
-    - ".*_test.go"  # можно пропустить тесты от некоторых линтеров, если нужно
+    - ".*_test.go"
 
 linters:
   enable:
-    - govet        # стандартные проверки Go
-    - errcheck     # проверка игнорируемых ошибок
-    - gosimple     # упрощение кода
-    - staticcheck  # расширенные проверки
-    - unused       # неиспользуемые переменные и функции
-    - deadcode     # мертвый код
-    - gofmt        # проверка форматирования
-    - gocyclo      # сложность функций
-    - dupl         # дублирующийся код
-    - structcheck  # неиспользуемые поля в структурах
-    - varcheck     # неиспользуемые глобальные переменные
-    - typecheck    # проверка типов
-    - ineffassign  # неэффективные присваивания
-    - goimports   # импорты в порядке
+    - govet
+    - errcheck
+    - gosimple
+    - staticcheck
+    - unused
+    - ineffassign
+    - typecheck
+    - gocyclo
+    - dupl
+    - goimports
 
 issues:
-  max-issues-per-linter: 0   # не ограничиваем, чтобы видеть все
+  max-issues-per-linter: 0
   max-same-issues: 0
   exclude-rules:
-    # можно исключить false-positive
     - linters:
         - dupl
       text: "generated"
@@ -38,7 +33,5 @@ linters-settings:
     min-complexity: 10
   dupl:
     threshold: 100
-  gofmt:
-    simplify: true
-  gosimple:
-    simplify: true
+  goimports:
+    local-prefixes: github.com/gallyamow/go-duplicated-files-finder

@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/gallyamow/go-duplicated-files-finder/internal/config"
 	"github.com/gallyamow/go-duplicated-files-finder/internal/finder"
 	"github.com/gallyamow/go-duplicated-files-finder/internal/hasher"
 	"github.com/gallyamow/go-duplicated-files-finder/internal/printer"
 	"github.com/gallyamow/go-duplicated-files-finder/internal/scanner"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 var version = "unknown"
@@ -36,10 +37,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	_, _ = fmt.Fprintf(os.Stderr, "Version: %s\n", version)
 	_, _ = fmt.Fprintln(os.Stderr, cfg)
 
 	var tm time.Time
-	var x = 42
 	tm = time.Now()
 	files, err := scanner.ScanDir(cfg.Path, scanner.Filter{MinSize: cfg.MinSize, ExcludeExts: cfg.ExcludeExt, ExcludeDirs: cfg.ExcludeDir})
 	if err != nil {

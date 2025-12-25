@@ -2,6 +2,7 @@ package finder
 
 import (
 	"context"
+
 	"github.com/gallyamow/go-duplicated-files-finder/internal/hasher"
 	"github.com/gallyamow/go-duplicated-files-finder/internal/model"
 )
