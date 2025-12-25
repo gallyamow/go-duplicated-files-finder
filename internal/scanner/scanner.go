@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 )
 
 type Filter struct {
@@ -65,7 +66,7 @@ func isFileExcluded(info fs.FileInfo, filter Filter) bool {
 
 	// ext
 	if len(filter.ExcludeExts) > 0 {
-		if slices.Contains(filter.ExcludeExts, filepath.Ext(info.Name())) {
+		if slices.Contains(filter.ExcludeExts, strings.ToLower(filepath.Ext(info.Name()))) {
 			return true
 		}
 	}
@@ -75,7 +76,7 @@ func isFileExcluded(info fs.FileInfo, filter Filter) bool {
 
 func isDirExcluded(d fs.DirEntry, filter Filter) bool {
 	if len(filter.ExcludeDirs) > 0 {
-		if slices.Contains(filter.ExcludeDirs, d.Name()) {
+		if slices.Contains(filter.ExcludeDirs, strings.ToLower(d.Name())) {
 			return true
 		}
 	}

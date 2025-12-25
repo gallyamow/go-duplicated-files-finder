@@ -46,8 +46,8 @@ func ParseFlags() (*Config, error) {
 		return nil, err
 	}
 
-	excludeExts := parseStrArray(*excludeExtStr)
-	excludeDirs := parseStrArray(*excludeDirStr)
+	excludeExts := parseStrArray(strings.ToLower(*excludeExtStr))
+	excludeDirs := parseStrArray(strings.ToLower(*excludeDirStr))
 
 	if *workers <= 0 {
 		return nil, fmt.Errorf("workers must be > 0")
