@@ -1,0 +1,44 @@
+run:
+  timeout: 5m
+  tests: true   # проверяем и тесты
+  issues.exclude-dirs:
+    - "dist"
+    - "vendor"
+  issues.exclude-files:
+    - ".*_test.go"  # можно пропустить тесты от некоторых линтеров, если нужно
+
+linters:
+  enable:
+    - govet        # стандартные проверки Go
+    - errcheck     # проверка игнорируемых ошибок
+    - gosimple     # упрощение кода
+    - staticcheck  # расширенные проверки
+    - unused       # неиспользуемые переменные и функции
+    - deadcode     # мертвый код
+    - gofmt        # проверка форматирования
+    - gocyclo      # сложность функций
+    - dupl         # дублирующийся код
+    - structcheck  # неиспользуемые поля в структурах
+    - varcheck     # неиспользуемые глобальные переменные
+    - typecheck    # проверка типов
+    - ineffassign  # неэффективные присваивания
+    - gosimports   # импорты в порядке
+
+issues:
+  max-issues-per-linter: 0   # не ограничиваем, чтобы видеть все
+  max-same-issues: 0
+  exclude-rules:
+    # можно исключить false-positive
+    - linters:
+        - dupl
+      text: "generated"
+
+linters-settings:
+  gocyclo:
+    min-complexity: 10
+  dupl:
+    threshold: 100
+  gofmt:
+    simplify: true
+  gosimple:
+    simplify: true
