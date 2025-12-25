@@ -3,8 +3,10 @@ package config
 import (
 	"flag"
 	"fmt"
+	"github.com/gallyamow/go-duplicated-files-finder/internal/hasher"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type Config struct {
@@ -14,6 +16,15 @@ type Config struct {
 	Algo    string
 	Workers int
 }
+
+func (c *Config) String() string {
+	return fmt.Sprintf("Config { Path: %s, Delete: %t, MinSize: %d, Algo: %s, Workers: %d }", c.Path, c.Delete, c.MinSize, c.Algo, c.Workers)
+}
+
+var (
+	config *Config
+	once   sync.Once
+)
 
 func ParseFlags() (*Config, error) {
 	deleteFlag := flag.Bool("delete", false, "delete duplicate files")
@@ -36,6 +47,15 @@ func ParseFlags() (*Config, error) {
 
 	if *workers <= 0 {
 		return nil, fmt.Errorf("workers must be > 0")
+	}
+
+	if err := hasher.ValidateAlgo(*algo); err != nil {
+		return nil, fmt.Errorf("unknown algo %s", *algo)
+	}
+
+	if *deleteFlag && *workers > 1 {
+		// TODO
+		return nil, fmt.Errorf("cannot delete files with multiple workers")
 	}
 
 	return &Config{

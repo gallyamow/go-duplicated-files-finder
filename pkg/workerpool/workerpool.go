@@ -5,13 +5,16 @@ import (
 	"sync"
 )
 
-func RunWithWorkers[T any, R any](ctx context.Context, jobCh <-chan T, handler func(ctx context.Context, job T) R, workersCount int) <-chan R {
+// RunWithWorkers runs the given handler function with the given number of workers.
+// The handler must wrap and return its own errors.
+// The handler must respect context cancellation.
+func RunWithWorkers[T any, R any](ctx context.Context, jobCh <-chan T, handler func(ctx context.Context, job T) R, workers int) <-chan R {
 	resCh := make(chan R)
 
 	var wg sync.WaitGroup
-	wg.Add(workersCount)
+	wg.Add(workers)
 
-	for i := range workersCount {
+	for i := range workers {
 		go func(workerId int) {
 			defer wg.Done()
 
@@ -24,12 +27,12 @@ func RunWithWorkers[T any, R any](ctx context.Context, jobCh <-chan T, handler f
 						return
 					}
 
-					res := handler(ctx, job)
+					jobRes := handler(ctx, job)
 
 					select {
 					case <-ctx.Done():
 						return
-					case resCh <- res:
+					case resCh <- jobRes:
 					}
 				}
 			}
