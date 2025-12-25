@@ -89,21 +89,24 @@ func parseStrArray(s string) []string {
 func parseSize(s string) (int64, error) {
 	s = strings.ToUpper(strings.TrimSpace(s))
 
-	multipliers := map[string]int64{
-		"B":  1,
-		"KB": 1024,
-		"MB": 1024 * 1024,
-		"GB": 1024 * 1024 * 1024,
+	multipliers := []struct {
+		unit string
+		mul  int64
+	}{
+		{"GB", 1024 * 1024 * 1024},
+		{"MB", 1024 * 1024},
+		{"KB", 1024},
+		{"B", 1},
 	}
 
-	for unit, mul := range multipliers {
-		if strings.HasSuffix(s, unit) {
-			value := strings.TrimSuffix(s, unit)
+	for _, it := range multipliers {
+		if strings.HasSuffix(s, it.unit) {
+			value := strings.TrimSuffix(s, it.unit)
 			n, err := strconv.ParseFloat(value, 64)
 			if err != nil {
 				return 0, fmt.Errorf("invalid size: %s", s)
 			}
-			return int64(n * float64(mul)), nil
+			return int64(n * float64(it.mul)), nil
 		}
 	}
 

@@ -46,11 +46,11 @@ func main() {
 		_, _ = fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
 	}
-	_, _ = fmt.Fprintf(os.Stderr, "Found total files %d, elapsed time %s \n", len(files), time.Since(tm))
+	_, _ = fmt.Fprintf(os.Stderr, "Found total files: %d, elapsed time %s \n", len(files), time.Since(tm))
 
 	tm = time.Now()
 	duplicates := finder.FindDuplicates(ctx, files, cfg.Algo, cfg.Workers)
-	_, _ = fmt.Fprintf(os.Stderr, "Found duplicates %d, elapsed time %s \n", len(duplicates), time.Since(tm))
+	_, _ = fmt.Fprintf(os.Stderr, "Found duplicates: %d, elapsed time %s \n", len(duplicates), time.Since(tm))
 
 	printer.PrintFiles(duplicates, printer.Format(cfg.Format))
 }
