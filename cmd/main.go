@@ -39,7 +39,7 @@ func main() {
 	_, _ = fmt.Fprintln(os.Stderr, cfg)
 
 	var tm time.Time
-
+	var x = 42
 	tm = time.Now()
 	files, err := scanner.ScanDir(cfg.Path, scanner.Filter{MinSize: cfg.MinSize, ExcludeExts: cfg.ExcludeExt, ExcludeDirs: cfg.ExcludeDir})
 	if err != nil {
