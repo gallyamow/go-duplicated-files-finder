@@ -30,7 +30,7 @@ func ParseFlags() (*Config, error) {
 	excludeExtStr := flag.String("exclude-ext", "", "comma-separated extensions")
 	excludeDirStr := flag.String("exclude-dir", "", "comma-separated directory names")
 	algo := flag.String("algo", "md5", "hash algorithm: md5, sha1, sha256")
-	workers := flag.Int("workers", runtime.GOMAXPROCS(0), "number of concurrent workers")
+	workers := flag.Int("workers", runtime.GOMAXPROCS(0)*2, "number of concurrent workers")
 	format := flag.String("format", "plain", "output format: plain, paths")
 
 	flag.Parse()
