@@ -1,11 +1,6 @@
 run:
   timeout: 5m
   tests: true
-  issues.exclude-dirs:
-    - dist
-    - vendor
-  issues.exclude-files:
-    - ".*_test.go"
 
 linters:
   enable:
@@ -21,6 +16,11 @@ linters:
     - goimports
 
 issues:
+  exclude-dirs:
+    - dist
+    - vendor
+  exclude-files:
+    - ".*_test.go"
   max-issues-per-linter: 0
   max-same-issues: 0
   exclude-rules:
