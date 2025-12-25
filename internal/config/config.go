@@ -6,7 +6,6 @@ import (
 	"github.com/gallyamow/go-duplicated-files-finder/internal/hasher"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 type Config struct {
@@ -20,11 +19,6 @@ type Config struct {
 func (c *Config) String() string {
 	return fmt.Sprintf("Config { Path: %s, Delete: %t, MinSize: %d, Algo: %s, Workers: %d }", c.Path, c.Delete, c.MinSize, c.Algo, c.Workers)
 }
-
-var (
-	config *Config
-	once   sync.Once
-)
 
 func ParseFlags() (*Config, error) {
 	deleteFlag := flag.Bool("delete", false, "delete duplicate files")

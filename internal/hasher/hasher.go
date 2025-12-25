@@ -16,7 +16,7 @@ import (
 	"sync"
 )
 
-func HashFiles(ctx context.Context, files []model.FileInfo, algo string, workers int) []model.Result {
+func HashFiles(ctx context.Context, files []model.FileInfo, algo string, workers int) []model.FileInfo {
 	// hasher is not thread-safe, so each worker must use its own hasher, so we will use sync.Pool in order to
 	var hasherPool = sync.Pool{
 		New: func() interface{} {
@@ -28,9 +28,9 @@ func HashFiles(ctx context.Context, files []model.FileInfo, algo string, workers
 		},
 	}
 
-	handler := func(ctx context.Context, job model.FileInfo) model.Result {
+	handler := func(ctx context.Context, file model.FileInfo) model.FileInfo {
 		if ctx.Err() != nil {
-			return model.Result{Err: ctx.Err()}
+			return file.WithErr(ctx.Err())
 		}
 
 		hasher := hasherPool.Get().(hash.Hash)
@@ -39,18 +39,15 @@ func HashFiles(ctx context.Context, files []model.FileInfo, algo string, workers
 			hasherPool.Put(hasher)
 		}()
 
-		hashStr, err := hashFile(job.Path, algo, hasher)
+		hashStr, err := hashFile(file.Path, algo, hasher)
 		if err != nil {
-			return model.Result{Err: err}
+			return file.WithErr(ctx.Err())
 		}
 
-		return model.Result{
-			Hash: hashStr,
-			File: job,
-		}
+		return file.WithHash(hashStr)
 	}
 
-	jobCh := make(chan model.FileInfo, len(files))
+	jobCh := make(chan model.FileInfo, workers)
 	go func() {
 		defer close(jobCh)
 
@@ -63,9 +60,9 @@ func HashFiles(ctx context.Context, files []model.FileInfo, algo string, workers
 		}
 	}()
 
-	resCh := workerpool.RunWithWorkers[model.FileInfo, model.Result](ctx, jobCh, handler, workers)
+	resCh := workerpool.RunWithWorkers[model.FileInfo, model.FileInfo](ctx, jobCh, handler, workers)
 
-	results := make([]model.Result, 0, len(files))
+	results := make([]model.FileInfo, 0, len(files))
 	for res := range resCh {
 		results = append(results, res)
 	}

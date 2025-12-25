@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/gallyamow/go-duplicated-files-finder/internal/config"
-	"github.com/gallyamow/go-duplicated-files-finder/internal/hasher"
+	"github.com/gallyamow/go-duplicated-files-finder/internal/finder"
 	"github.com/gallyamow/go-duplicated-files-finder/internal/scanner"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -23,13 +24,21 @@ func main() {
 
 	fmt.Println(cfg)
 
-	files, err := scanner.ScanDir(cfg.Path, cfg.MinSize)
+	var tm time.Time
+
+	tm = time.Now()
+	files, err := scanner.ScanDir(cfg.Path, scanner.Filter{MinSize: cfg.MinSize})
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
 	}
-	fmt.Printf("Found %d files\n", len(files))
+	_, _ = fmt.Fprintf(os.Stderr, "Total files %d, elapsed time %s \n", len(files), time.Since(tm))
 
-	hashes := hasher.HashFiles(ctx, files, cfg.Algo, cfg.Workers)
-	fmt.Printf("Hashed %d files\n", len(hashes))
+	tm = time.Now()
+	duplicates := finder.FindDuplicates(ctx, files, cfg.Algo, cfg.Workers)
+	_, _ = fmt.Fprintf(os.Stderr, "Found duplicates %d, elapsed time %s \n", len(duplicates), time.Since(tm))
+
+	for i, file := range duplicates {
+		fmt.Printf("%d) '%s' %d '%s'\n", i+1, file.Path, file.Size, file.Hash)
+	}
 }

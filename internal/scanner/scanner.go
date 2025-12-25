@@ -6,9 +6,18 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 )
 
-func ScanDir(root string, minSize int64) ([]model.FileInfo, error) {
+type Filter struct {
+	MinSize     int64
+	ExcludedExt []string
+	IncludedExt []string
+}
+
+// ScanDir scans the directory and returns a list of files.
+// IO-bound task, no reason to use goroutines.
+func ScanDir(root string, filter Filter) ([]model.FileInfo, error) {
 	var files []model.FileInfo
 
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
@@ -28,7 +37,7 @@ func ScanDir(root string, minSize int64) ([]model.FileInfo, error) {
 			return nil
 		}
 
-		if info.Size() < minSize {
+		if isExcluded(info, filter) {
 			return nil
 		}
 
@@ -41,4 +50,32 @@ func ScanDir(root string, minSize int64) ([]model.FileInfo, error) {
 	})
 
 	return files, err
+}
+
+func isExcluded(info fs.FileInfo, filter Filter) bool {
+	// size
+	if filter.MinSize != 0 {
+		if info.Size() < filter.MinSize {
+			return true
+		}
+	}
+
+	// ext
+	if filter.ExcludedExt != nil || filter.IncludedExt != nil {
+		ext := filepath.Ext(info.Name())
+
+		if filter.ExcludedExt != nil {
+			if slices.Contains(filter.ExcludedExt, ext) {
+				return true
+			}
+		}
+
+		if filter.IncludedExt != nil {
+			if !slices.Contains(filter.IncludedExt, ext) {
+				return true
+			}
+		}
+	}
+
+	return false
 }
