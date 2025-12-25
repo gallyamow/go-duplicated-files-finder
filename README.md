@@ -9,15 +9,15 @@ prints results in a machine-friendly format.
 dupfinder [flags] <path>
 ```
 
-| Flag            | Default        | Description                                          |
-|-----------------|----------------|------------------------------------------------------|
-| `--min-size`    | `1B`           | Minimum file size to include (e.g., `10MB`, `500KB`) |
-| `--exclude-ext` | `""`           | Comma-separated file extensions to ignore            |
-| `--exclude-dir` | `""`           | Comma-separated directory names to skip              |
-| `--algo`        | `sha256`       | Hash algorithm (`md5`, `sha1`, `sha256`)             |
-| `--workers`     | number of CPUs | Number of concurrent workers                         |
-| `--format`      | `paths`        | Output format: `plain`, `paths`, `json`              |
-| `--delete`      | `false`        | Delete the duplicate files (use with caution)        |
+| Flag            | Default            | Description                                          |
+|-----------------|--------------------|------------------------------------------------------|
+| `--min-size`    | `1B`               | Minimum file size to include (e.g., `10MB`, `500KB`) |
+| `--exclude-ext` | `""`               | Comma-separated file extensions to ignore            |
+| `--exclude-dir` | `""`               | Comma-separated directory names to skip              |
+| `--algo`        | `md5`              | Hash algorithm (`md5`, `sha1`, `sha256`)             |
+| `--workers`     | 2 x number of CPUs | Number of concurrent workers                         |
+| `--format`      | `paths`            | Output format: `plain`, `paths`, `json`              |
+| `--delete`      | `false`            | Delete the duplicate files (use with caution)        |
 
 ### Example
 

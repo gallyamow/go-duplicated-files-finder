@@ -41,7 +41,7 @@ func HashFiles(ctx context.Context, files []model.FileInfo, algo string, workers
 
 		hashStr, err := hashFile(file.Path, algo, hasher)
 		if err != nil {
-			return file.WithErr(ctx.Err())
+			return file.WithErr(err)
 		}
 
 		return file.WithHash(hashStr)
