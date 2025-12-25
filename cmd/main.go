@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"go-duplicated-files-finder/internal/config"
-	"go-duplicated-files-finder/internal/scanner"
+	"github.com/gallyamow/go-duplicated-files-finder/internal/config"
+	"github.com/gallyamow/go-duplicated-files-finder/internal/scanner"
 	"log"
 	"os"
 )

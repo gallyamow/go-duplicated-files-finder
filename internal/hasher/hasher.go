@@ -16,8 +16,11 @@ func hashFile(path string, algo string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer f.Close()
+	defer func(f *os.File) {
+		_ = f.Close()
+	}(f)
 
+	// reusable?
 	hasher, err := newHasher(algo)
 	if err != nil {
 		return "", err
