@@ -22,7 +22,7 @@ linters:
     - varcheck     # неиспользуемые глобальные переменные
     - typecheck    # проверка типов
     - ineffassign  # неэффективные присваивания
-    - gosimports   # импорты в порядке
+    - goimports   # импорты в порядке
 
 issues:
   max-issues-per-linter: 0   # не ограничиваем, чтобы видеть все
