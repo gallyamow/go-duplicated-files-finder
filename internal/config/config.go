@@ -3,7 +3,6 @@ package config
 import (
 	"flag"
 	"fmt"
-	"github.com/gallyamow/go-duplicated-files-finder/internal/hasher"
 	"strconv"
 	"strings"
 )
@@ -14,6 +13,7 @@ type Config struct {
 	MinSize int64
 	Algo    string
 	Workers int
+	Format  string
 }
 
 func (c *Config) String() string {
@@ -25,6 +25,7 @@ func ParseFlags() (*Config, error) {
 	minSizeStr := flag.String("min-size", "1B", "minimum file size (e.g. 10MB, 500KB)")
 	algo := flag.String("algo", "sha256", "hash algorithm: md5, sha1, sha256")
 	workers := flag.Int("workers", 4, "number of concurrent workers")
+	format := flag.String("format", "paths", "output format: plain, paths")
 
 	flag.Parse()
 
@@ -43,10 +44,6 @@ func ParseFlags() (*Config, error) {
 		return nil, fmt.Errorf("workers must be > 0")
 	}
 
-	if err := hasher.ValidateAlgo(*algo); err != nil {
-		return nil, fmt.Errorf("unknown algo %s", *algo)
-	}
-
 	if *deleteFlag && *workers > 1 {
 		// TODO
 		return nil, fmt.Errorf("cannot delete files with multiple workers")
@@ -58,6 +55,7 @@ func ParseFlags() (*Config, error) {
 		MinSize: minSize,
 		Algo:    *algo,
 		Workers: *workers,
+		Format:  *format,
 	}, nil
 }
 

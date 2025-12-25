@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/gallyamow/go-duplicated-files-finder/internal/config"
 	"github.com/gallyamow/go-duplicated-files-finder/internal/finder"
+	"github.com/gallyamow/go-duplicated-files-finder/internal/hasher"
+	"github.com/gallyamow/go-duplicated-files-finder/internal/printer"
 	"github.com/gallyamow/go-duplicated-files-finder/internal/scanner"
 	"os"
 	"os/signal"
@@ -18,7 +20,17 @@ func main() {
 
 	cfg, err := config.ParseFlags()
 	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, "Error:", err)
+		_, _ = fmt.Fprintln(os.Stderr, "Failed parse config:", err)
+		os.Exit(1)
+	}
+
+	if err := hasher.ValidateAlgo(cfg.Algo); err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, "Unknown algo:", err)
+		os.Exit(1)
+	}
+
+	if err := printer.ValidateFormat(cfg.Format); err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, "Unknown format:", err)
 		os.Exit(1)
 	}
 
@@ -38,7 +50,5 @@ func main() {
 	duplicates := finder.FindDuplicates(ctx, files, cfg.Algo, cfg.Workers)
 	_, _ = fmt.Fprintf(os.Stderr, "Found duplicates %d, elapsed time %s \n", len(duplicates), time.Since(tm))
 
-	for i, file := range duplicates {
-		fmt.Printf("%d) '%s' %d '%s'\n", i+1, file.Path, file.Size, file.Hash)
-	}
+	printer.PrintFiles(duplicates, printer.Format(cfg.Format))
 }
