@@ -3,29 +3,35 @@ package config
 import (
 	"flag"
 	"fmt"
+	"runtime"
 	"strconv"
 	"strings"
 )
 
 type Config struct {
-	Path    string
-	Delete  bool
-	MinSize int64
-	Algo    string
-	Workers int
-	Format  string
+	Path       string
+	Delete     bool
+	MinSize    int64
+	ExcludeExt []string
+	ExcludeDir []string
+	Algo       string
+	Workers    int
+	Format     string
 }
 
 func (c *Config) String() string {
-	return fmt.Sprintf("Config { Path: %s, Delete: %t, MinSize: %d, Algo: %s, Workers: %d }", c.Path, c.Delete, c.MinSize, c.Algo, c.Workers)
+	return fmt.Sprintf("Config { Path: %s, Delete: %t, MinSize: %d, excludedExts: %v, excludedDirs: %v, Algo: %s, Workers: %d, Format: %s }",
+		c.Path, c.Delete, c.MinSize, c.ExcludeExt, c.ExcludeDir, c.Algo, c.Workers, c.Format)
 }
 
 func ParseFlags() (*Config, error) {
 	deleteFlag := flag.Bool("delete", false, "delete duplicate files")
 	minSizeStr := flag.String("min-size", "1B", "minimum file size (e.g. 10MB, 500KB)")
-	algo := flag.String("algo", "sha256", "hash algorithm: md5, sha1, sha256")
-	workers := flag.Int("workers", 4, "number of concurrent workers")
-	format := flag.String("format", "paths", "output format: plain, paths")
+	excludeExtStr := flag.String("exclude-ext", "", "comma-separated extensions")
+	excludeDirStr := flag.String("exclude-dir", "", "comma-separated directory names")
+	algo := flag.String("algo", "md5", "hash algorithm: md5, sha1, sha256")
+	workers := flag.Int("workers", runtime.GOMAXPROCS(0), "number of concurrent workers")
+	format := flag.String("format", "plain", "output format: plain, paths")
 
 	flag.Parse()
 
@@ -40,6 +46,9 @@ func ParseFlags() (*Config, error) {
 		return nil, err
 	}
 
+	excludeExts := parseStrArray(*excludeExtStr)
+	excludeDirs := parseStrArray(*excludeDirStr)
+
 	if *workers <= 0 {
 		return nil, fmt.Errorf("workers must be > 0")
 	}
@@ -50,13 +59,31 @@ func ParseFlags() (*Config, error) {
 	}
 
 	return &Config{
-		Path:    path,
-		Delete:  *deleteFlag,
-		MinSize: minSize,
-		Algo:    *algo,
-		Workers: *workers,
-		Format:  *format,
+		Path:       path,
+		Delete:     *deleteFlag,
+		MinSize:    minSize,
+		ExcludeExt: excludeExts,
+		ExcludeDir: excludeDirs,
+		Algo:       *algo,
+		Workers:    *workers,
+		Format:     *format,
 	}, nil
+}
+
+func parseStrArray(s string) []string {
+	if s == "" {
+		return nil
+	}
+
+	var res []string
+	for _, v := range strings.Split(s, ",") {
+		v = strings.TrimSpace(v)
+		if v == "" {
+			continue
+		}
+		res = append(res, v)
+	}
+	return res
 }
 
 func parseSize(s string) (int64, error) {

@@ -11,8 +11,8 @@ import (
 
 type Filter struct {
 	MinSize     int64
-	ExcludedExt []string
-	IncludedExt []string
+	ExcludeExts []string
+	ExcludeDirs []string
 }
 
 // ScanDir scans the directory and returns a list of files.
@@ -27,6 +27,9 @@ func ScanDir(root string, filter Filter) ([]model.FileInfo, error) {
 		}
 
 		if d.IsDir() {
+			if isDirExcluded(d, filter) {
+				return fs.SkipDir
+			}
 			return nil
 		}
 
@@ -37,7 +40,7 @@ func ScanDir(root string, filter Filter) ([]model.FileInfo, error) {
 			return nil
 		}
 
-		if isExcluded(info, filter) {
+		if isFileExcluded(info, filter) {
 			return nil
 		}
 
@@ -52,7 +55,7 @@ func ScanDir(root string, filter Filter) ([]model.FileInfo, error) {
 	return files, err
 }
 
-func isExcluded(info fs.FileInfo, filter Filter) bool {
+func isFileExcluded(info fs.FileInfo, filter Filter) bool {
 	// size
 	if filter.MinSize != 0 {
 		if info.Size() < filter.MinSize {
@@ -61,19 +64,19 @@ func isExcluded(info fs.FileInfo, filter Filter) bool {
 	}
 
 	// ext
-	if filter.ExcludedExt != nil || filter.IncludedExt != nil {
-		ext := filepath.Ext(info.Name())
-
-		if filter.ExcludedExt != nil {
-			if slices.Contains(filter.ExcludedExt, ext) {
-				return true
-			}
+	if len(filter.ExcludeExts) > 0 {
+		if slices.Contains(filter.ExcludeExts, filepath.Ext(info.Name())) {
+			return true
 		}
+	}
 
-		if filter.IncludedExt != nil {
-			if !slices.Contains(filter.IncludedExt, ext) {
-				return true
-			}
+	return false
+}
+
+func isDirExcluded(d fs.DirEntry, filter Filter) bool {
+	if len(filter.ExcludeDirs) > 0 {
+		if slices.Contains(filter.ExcludeDirs, d.Name()) {
+			return true
 		}
 	}
 

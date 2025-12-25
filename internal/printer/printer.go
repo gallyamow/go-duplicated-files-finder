@@ -5,6 +5,7 @@ import (
 	"github.com/gallyamow/go-duplicated-files-finder/internal/model"
 	"os"
 	"slices"
+	"sort"
 )
 
 type Format string
@@ -13,6 +14,13 @@ const (
 	FormatPlain Format = "plain"
 	FormatPaths Format = "paths"
 )
+
+func ValidateFormat(format string) error {
+	if slices.Contains([]Format{FormatPlain, FormatPaths}, Format(format)) {
+		return nil
+	}
+	return fmt.Errorf("unknown format: %s", format)
+}
 
 func PrintFiles(files []model.FileInfo, format Format) {
 	switch format {
@@ -24,16 +32,20 @@ func PrintFiles(files []model.FileInfo, format Format) {
 }
 
 func printFilesPlain(files []model.FileInfo) {
-	for _, f := range files {
+	sortedFiles := sorted(files)
+
+	for _, f := range sortedFiles {
 		if f.Err != nil {
 			continue // ошибки не печатаем в stdout
 		}
-		_, _ = fmt.Fprintf(os.Stdout, "%s\t%d\t%s\n", f.Hash, f.Size, f.Path)
+		_, _ = fmt.Fprintf(os.Stdout, "%s\t%s\t%s\n", f.Hash, formatFileSize(f.Size), f.Path)
 	}
 }
 
 func printFilesPaths(files []model.FileInfo) {
-	for _, f := range files {
+	sortedFiles := sorted(files)
+
+	for _, f := range sortedFiles {
 		if f.Err != nil {
 			continue // ошибки не печатаем в stdout
 		}
@@ -41,9 +53,30 @@ func printFilesPaths(files []model.FileInfo) {
 	}
 }
 
-func ValidateFormat(format string) error {
-	if slices.Contains([]Format{FormatPlain, FormatPaths}, Format(format)) {
-		return nil
+func sorted(files []model.FileInfo) []model.FileInfo {
+	res := append([]model.FileInfo{}, files...)
+
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].Size > res[j].Size
+	})
+
+	return res
+}
+
+func formatFileSize(bytes int64) string {
+	const unit = 1000
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
 	}
-	return fmt.Errorf("unknown format: %s", format)
+
+	div, exp := int64(unit), 0
+	for n := bytes / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+
+	return fmt.Sprintf("%.1f %cB",
+		float64(bytes)/float64(div),
+		"KMGTPE"[exp],
+	)
 }

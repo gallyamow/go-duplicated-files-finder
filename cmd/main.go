@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+var version = "unknown"
+
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -34,17 +36,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(cfg)
+	_, _ = fmt.Fprintln(os.Stderr, cfg)
 
 	var tm time.Time
 
 	tm = time.Now()
-	files, err := scanner.ScanDir(cfg.Path, scanner.Filter{MinSize: cfg.MinSize})
+	files, err := scanner.ScanDir(cfg.Path, scanner.Filter{MinSize: cfg.MinSize, ExcludeExts: cfg.ExcludeExt, ExcludeDirs: cfg.ExcludeDir})
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
 	}
-	_, _ = fmt.Fprintf(os.Stderr, "Total files %d, elapsed time %s \n", len(files), time.Since(tm))
+	_, _ = fmt.Fprintf(os.Stderr, "Found total files %d, elapsed time %s \n", len(files), time.Since(tm))
 
 	tm = time.Now()
 	duplicates := finder.FindDuplicates(ctx, files, cfg.Algo, cfg.Workers)
