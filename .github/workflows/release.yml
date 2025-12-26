@@ -5,6 +5,9 @@ on:
     tags:
       - "*.*.*"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,6 +35,6 @@ jobs:
       - name: Upload binary to release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/duplicated-files-finder
+          files: ./dupfinder
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
