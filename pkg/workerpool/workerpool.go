@@ -17,7 +17,6 @@ func RunWithWorkers[T any, R any](ctx context.Context, jobCh <-chan T, handler f
 	for i := range workers {
 		go func(workerId int) {
 			defer wg.Done()
-			var x = 43
 			for {
 				select {
 				case <-ctx.Done():
