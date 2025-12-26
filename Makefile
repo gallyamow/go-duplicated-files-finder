@@ -16,6 +16,9 @@ run:
 clean:
 	rm -f $(APP_NAME)
 
+test:
+	go test  ./...
+
 lint:
 	goimports -w .
 	golangci-lint run ./...
