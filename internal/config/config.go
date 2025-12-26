@@ -1,11 +1,17 @@
 package config
 
 import (
+	"errors"
 	"flag"
 	"fmt"
+	"os"
 	"runtime"
 	"strconv"
 	"strings"
+)
+
+var (
+	ErrorPathRequired = errors.New("path is required")
 )
 
 type Config struct {
@@ -20,13 +26,13 @@ type Config struct {
 }
 
 func (c *Config) String() string {
-	return fmt.Sprintf("Config { Path: %s, Delete: %t, MinSize: %d, excludedExts: %v, excludedDirs: %v, Algo: %s, Workers: %d, Format: %s }",
+	return fmt.Sprintf("Config { Path: %s, Delete: %t, MinSize: %d, ExcludedExts: %v, ExcludedDirs: %v, Algo: %s, Workers: %d, Format: %s }",
 		c.Path, c.Delete, c.MinSize, c.ExcludeExt, c.ExcludeDir, c.Algo, c.Workers, c.Format)
 }
 
 func ParseFlags() (*Config, error) {
 	deleteFlag := flag.Bool("delete", false, "delete duplicate files")
-	minSizeStr := flag.String("min-size", "1B", "minimum file size (e.g. 10MB, 500KB)")
+	minSizeStr := flag.String("min-size", "", "minimum file size (e.g. 10MB, 500KB)")
 	excludeExtStr := flag.String("exclude-ext", "", "comma-separated extensions")
 	excludeDirStr := flag.String("exclude-dir", "", "comma-separated directory names")
 	algo := flag.String("algo", "md5", "hash algorithm: md5, sha1, sha256")
@@ -36,10 +42,13 @@ func ParseFlags() (*Config, error) {
 	flag.Parse()
 
 	if flag.NArg() < 1 {
-		return nil, fmt.Errorf("path is required")
+		return nil, ErrorPathRequired
 	}
 
 	path := flag.Arg(0)
+	if path == "" {
+		return nil, ErrorPathRequired
+	}
 
 	minSize, err := parseSize(*minSizeStr)
 	if err != nil {
@@ -87,6 +96,10 @@ func parseStrArray(s string) []string {
 }
 
 func parseSize(s string) (int64, error) {
+	if s == "" {
+		return 0, nil
+	}
+
 	s = strings.ToUpper(strings.TrimSpace(s))
 
 	multipliers := []struct {
@@ -111,4 +124,9 @@ func parseSize(s string) (int64, error) {
 	}
 
 	return 0, fmt.Errorf("unknown size unit: %s", s)
+}
+
+// testing purposes
+func resetFlags() {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 }
